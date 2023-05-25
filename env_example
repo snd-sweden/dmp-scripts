@@ -1,0 +1,7 @@
+DMPONLINE_API_URL=https://dsw-staging.ita.chalmers.se:3443
+DMPONLINE_USER_USER=
+DMPONLINE_PW=
+LOGFILE=
+SWECRIS_URL=https://swecris-api.vr.se/v1/projects/
+SWECRIS_API_KEY=
+DMP_ID_PREFIX=dmptest
