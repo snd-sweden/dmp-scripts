@@ -13,7 +13,7 @@ import uuid
 # Simple cript for creating new DMP:s (projects) in DMP Online (or other maDMP compatible tools), using basic data
 # from SweCRIS.
 # Todo: lots of things...
-# Example: ./python3 swecris2dmp.py -i 2021-04241 -f vr -n "Albert Einstein" -e aeinstein@example.com -o 0000-0001-1234-567x
+# Example: ./python3 swecris2dmponline.py -i 2021-04241 -f vr -n "Albert Einstein" -e aeinstein@example.com -o 0000-0001-1234-567x -t 439
 #
 # / urban.andersson@chalmers.se
 #
@@ -39,6 +39,7 @@ parser.add_argument("-l", "--lang", default="eng", help="Language used in DMP, p
 parser.add_argument("-n", "--name", default="", help="Full name of contact person for DMP", required=True)
 parser.add_argument("-e", "--email", default="", help="Contact person e-mail", required=True)
 parser.add_argument("-o", "--orcid", default="", help="Contact person ORCID (if available)", required=False)
+parser.add_argument("-t", "--template", default="", help="DMP Online template ID", required=True)
 args = parser.parse_args()
 
 # Create Swecris ID and look up corresponding project in Swecris API
@@ -50,6 +51,7 @@ lang = args.lang
 contact_name = args.name
 contact_email = args.email
 contact_orcid = args.orcid
+templateid = args.template
 
 # Funder specific params
 if funder == 'vr':
@@ -139,6 +141,7 @@ try:
             ct = {}
             orcid = ''
             ct["name"] = persons['fullName']
+            ct["affiliation"] = {"name": os.getenv("DEFAULT_AFF")}
             # Orcid
             if 'orcId' in persons:
                 orcid = persons['orcId']
@@ -153,7 +156,7 @@ try:
         d["contributor"] = cs
 
         # Contact
-        cnt = {'name': contact_name, 'mbox': contact_email}
+        cnt = {"name": contact_name, "mbox": contact_email, "affiliation": {"name": os.getenv("DEFAULT_AFF")}}
         if contact_orcid:
             cnt['contact_id'] = {"identifier": contact_orcid, "type": "orcid"}
         d['contact'] = cnt
@@ -180,13 +183,47 @@ try:
         d['dataset'] = dsts_empty
 
         # DMP template
-
+        extension = [{"dmproadmap": {"template": {"id": str(templateid)}}}]
 
         # Create (and print) maDMP record
         dmp['dmp'] = d
+        dmp['extension'] = extension
         print(json.dumps(dmp, indent=4))
 
-        # Go ahead and create DMP in DMPOnline from here...?
+        # Go ahead and create DMP in DMPOnline from here...
+        print('Should I create a new DMP using these data in DMP Online? (y/n)')
+        yes = {'yes', 'y', 'ye', 'j', 'ja', ''}
+        no = {'no', 'n', 'nej'}
+        choice = input().lower()
+        if choice in yes:
+
+            # Authorize
+            dmp_auth_bearer = ''
+            dmp_auth_url = os.getenv("DMPONLINE_API_URL") + 'authenticate'
+            auth_headers = {'Accept': 'application/json', 'Content-Type': 'application/json'}
+            auth_body = {"grant_type": "authorization_code", "email": os.getenv("DMPONLINE_USER"),
+                         "code": os.getenv("DMPONLINE_AUTH_CODE")}
+            try:
+                authdata = requests.post(url=dmp_auth_url, json=auth_body, headers=auth_headers).text
+                if 'Internal server error' in authdata:
+                    print('Authentication request failed! Exiting.')
+                    exit()
+                authdata = json.loads(authdata)
+                dmp_auth_bearer = authdata["access_token"]
+                print('Authorized! Access token: ' + dmp_auth_bearer)
+
+            except requests.exceptions.HTTPError as e:
+                print('Failed! authdata: ' + authdata)
+                exit()
+
+            # Create DMP (and set correct permissions)
+            # Todo
+
+            # Link to new DMP
+
+        elif choice in no:
+            print('OK. Will exit then.')
+            exit()
 
     elif choice in no:
         print('OK. Will exit then.')
