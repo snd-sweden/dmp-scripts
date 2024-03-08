@@ -1,21 +1,45 @@
 # Introduction
+Full instructions on how to query the DMPonline API can be found at: https://github.com/DMPRoadmap/roadmap/wiki/API-documentation
 
 ### General info on API usage
-Additionally the a .env file is required where login information and URLs are stored. Use the .envexample file to create your own. 
+In order to use these scripts a `.env` file is required where login information and URLs are stored. Use the .envexample file to create your own. 
 
 Swecris has an open API key (can be found at: https://www.vr.se/english/swecris/swecris-api.html). 
-For DMPonline administrators
+
+For DMPonline administrators need to state their login and API-key in the `.env` file in order to be able to authenticate with the DMPonline API.
+
+### Query DMPonline about existing templates
+The script `dmponline_templates.py` queries DMPonline about existing templates. Useful to identify specific templateids.
+
+At the moment the script performs a simple query to dmp online using login info from the `.env` file and to download all accessible templates, print them and store them as a single JSON in a subfolder, `Templates`. 
+
+The script only returns the first page (up to 100 entries) currently.
+
+
 
 ### Create a single DMP in DMPonline using data from SweCris
 
 The script `swecris_to_dmponline.py` fetches data from SweCris for a given project/financed activity and genereates a basic DMP that can be uploaded to DMPonline. 
 
 The script takes the following as input:
-* ..
-* ..
-* ..
+* Grantid, e.g. -i 2023-xxxxx (required, this is the grant id from the funder)
+* Funder e.g. -f vr (required, necessary to locate data in SweCris)
+* Language e.g. -l eng (optional, default is eng) 
+* Name e.g. -n "Albert Einstein" (required, used to create the user)
+* Email e.g. -e aeinstein@example.com (required, used to create the user)
+* Orcid e.g. -0 0009-1234-5678-1234 (optional, currently disabled)
+* Templatenumber e.g -t 439 (required, this can be found by running a template check with `dmponline_templates.py`)
 
-Thes script reorders data from SweCris into a json file compatible with the RDA JSONschema 1.0 (see: ). The schema consists of the following sections:  
+Example call:  `./python3 swecris_to_dmponline.py -i 2012-12345 -f vr -n "Albert Einstein" -e aeinstein@example.com -t 439`
+
+The script first tries to access the SweCris database to find the correct project. If found, it prompts the user for whether to create a DMP.
+
+If yes then:
+
+The script reorders data from SweCris into a json file compatible with the RDA JSONschema 1.0 (see: ). 
+<details>
+  <summary>The schema consists of the following sections (click me):</summary>
+  
 | Syntax | Description |  
 | --------------- | ----------- |    
 |`"dmp:"`|          main container/dictionary where additional containers are added. subheadings include:|  
@@ -75,4 +99,12 @@ Thes script reorders data from SweCris into a json file compatible with the RDA 
 |<ul>`"id:"`</ul>|              Fetched from script params. id number for the template.|
 |<ul>`"title:"`</ul>|           default "". Gets filled in by DMPonline with correct title based on id.|
 
+</details>  
 
+
+<br/>
+
+The complete JSON is shown and the script prompts whether to upload to DMPonline.
+
+If yes then the script uploads the plan to dmponline.
+The postdata is printed in full and also stored as a json file combining grantid and name (from script parameters) in a subfolder `Uploaded_plans`. The link to the dmp is printed and then the script exits. 
