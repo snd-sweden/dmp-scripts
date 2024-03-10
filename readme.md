@@ -6,19 +6,27 @@ In order to use these scripts a `.env` file is required where login information 
 
 Swecris has an open API key (can be found at: https://www.vr.se/english/swecris/swecris-api.html). 
 
-For DMPonline administrators need to state their login and API-key in the `.env` file in order to be able to authenticate with the DMPonline API.
+DMPonline administrators need to state their login and API-key in the `.env` file in order to be able to authenticate with the DMPonline API.
 
 ### Query DMPonline about existing templates
 The script `dmponline_templates.py` queries DMPonline about existing templates. Useful to identify specific templateids.
 
-At the moment the script performs a simple query to dmp online using login info from the `.env` file and to download all accessible templates, print them and store them as a single JSON in a subfolder, `Templates`. 
+At the moment the script performs a simple query to DMPonline using login info from the `.env` file and downloads all accessible templates, prints them and stores them as a single JSON in a subfolder, `Templates`. 
 
-The script only returns the first page (up to 100 entries) currently.
+Currently, the script only returns the first page (up to 100 entries).
 
+### Download a specific DMP from DMPonline 
+The script `dmponline2_file_v0.py`and `dmponline2_file_v0.py`both lookup and donwload a specified DMP and stores it as a JSON. The `v0`-script accesses the DMPonline API V0 while the `v1`-script aceesses the API V1. For details see: https://github.com/DMPRoadmap/roadmap/wiki/API-documentation
 
+The main difference is that API V0 relays all the information stored in the DMP, while API V1 provides the metadata on the DMP in a RDA v1.0 schema compliant format. 
+
+Downloaded plans are stored in a subfolder, `Downloaded_plans`.
+
+Both scripts require input in the form of the ID of the specific plan. These are the 6 digits at the end of the DMP-URL (e.g. dmponline.dcc.ac.uk/plans/**123456**) 
+
+Example call:  `./python3 dmponline2_file_v0.py -i 123456`
 
 ### Create a single DMP in DMPonline using data from SweCris
-
 The script `swecris_to_dmponline.py` fetches data from SweCris for a given project/financed activity and genereates a basic DMP that can be uploaded to DMPonline. 
 
 The script takes the following as input:
