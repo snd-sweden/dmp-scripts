@@ -44,7 +44,7 @@ The script first tries to access the SweCris database to find the correct projec
 
 If yes then:
 
-The script reorders data from SweCris into a json file compatible with the RDA JSONschema 1.0 (see: ). 
+The script reorders data from SweCris into a json file compatible with the RDA JSONschema 1.0 (see: https://github.com/RDA-DMP-Common/RDA-DMP-Common-Standard). 
 <details>
   <summary>The schema consists of the following sections (click me):</summary>
   
