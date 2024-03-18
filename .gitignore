@@ -1,1 +1,5 @@
 .env
+Templates/
+dmplog.txt
+Downloaded_plans/
+Uploaded_plans/
