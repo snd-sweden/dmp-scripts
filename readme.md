@@ -1,6 +1,10 @@
 # Introduction
 Full instructions on how to query the DMPonline API can be found at: https://github.com/DMPRoadmap/roadmap/wiki/API-documentation
 
+### Requirements
+
+[Python & pip](https://www.python.org/downloads/)  
+
 ### Install required python modules
 
 `pip install -r requirements.txt`
